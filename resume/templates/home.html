@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - My Portfolio{% endblock title %}
+
+{% block content %}
+<div class="row my-5">
+    <div class="circular-image-container">
+        <img src="{% static 'images/junaid.jpg' %}" alt="Junaid Hafeez" class="img-fluid rounded-circle">
+    </div>
+    <div class="col-12 text-center">
+        <h4 class="name">Junaid Hafeez</h4>
+        <p class="title">Software Engineer</p>
+    </div>
+    <div class="welcome-section">
+        <h1 class="welcome-text">Welcome to my professional portfolio</h1>
+        <p class="description-text">
+            I specialize in creating robust and scalable web applications using modern technologies.
+            With expertise in both front-end and back-end development, I bring ideas to life through
+            clean, efficient, and maintainable code.
+        </p>
+        <div class="cta-buttons">
+            <a href="/about" class="btn btn-primary">Learn More About Me</a>
+            <a href="/projects" class="btn btn-outline-primary">View My Projects</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
