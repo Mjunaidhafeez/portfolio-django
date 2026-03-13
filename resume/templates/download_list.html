@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_settings.downloads_page_title }}{% endblock title %}
+
+{% block content %}
+<section class="downloads-section">
+    <div class="container">
+        <h1 class="section-title">{{ site_settings.downloads_page_title }}</h1>
+        <p class="section-description">{{ site_settings.downloads_page_subtitle }}</p>
+
+        <div class="downloads-content revamp-content">
+                <div class="revamp-topbar">
+                    <div>
+                        {% if selected_category %}
+                        <h3 class="revamp-current-title">{{ selected_category.name }}</h3>
+                        {% else %}
+                        <h3 class="revamp-current-title">{{ site_settings.downloads_filter_all_text }}</h3>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if breadcrumbs %}
+                <div class="download-breadcrumbs revamp-breadcrumbs">
+                    <a href="{% url 'download_list' %}">{{ site_settings.downloads_filter_all_text }}</a>
+                    {% for crumb in breadcrumbs %}
+                    <span>/</span> <a href="{% url 'download_list' %}?category={{ crumb.slug }}">{{ crumb.name }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if child_categories %}
+                <div class="folder-grid">
+                    {% for category in child_categories %}
+                    <a href="{% url 'download_list' %}?category={{ category.slug }}" class="folder-card">
+                        <span class="folder-icon"><i class="fas fa-folder-open"></i></span>
+                        <span class="folder-meta">
+                            <strong>{{ category.name }}</strong>
+                            <small>Open folder</small>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if items %}
+                    <form id="bulkDownloadForm" method="post" action="{% url 'download_bulk' %}">
+                        {% csrf_token %}
+                        <div class="downloads-toolbar revamp-toolbar">
+                            <div class="downloads-toolbar-left">
+                                <label class="folder-check-all">
+                                    <input type="checkbox" id="folderCheckAll">
+                                    <span>Check all</span>
+                                </label>
+                                <button type="submit" class="btn btn-primary btn-sm d-none" id="bulkDownloadButton">{{ site_settings.downloads_bulk_download_text }}</button>
+                                <span class="download-selected-count d-none" id="selectedCountBadge">0 selected</span>
+                            </div>
+                        </div>
+
+                        <div class="downloads-grid">
+                            {% for item in items %}
+                            <article class="download-card clickable-file-card" data-open-url="{% url 'download_detail' item.slug %}">
+                                {% if item.thumbnail %}
+                                <img src="{{ item.thumbnail.url }}" alt="{{ item.title }}" class="download-thumb">
+                                {% endif %}
+                                <div class="download-card-body">
+                                    <div class="download-select-row">
+                                        <input type="checkbox" class="download-item-checkbox" name="item_ids" value="{{ item.id }}" aria-label="{{ item.title }}">
+                                    </div>
+                                    <h3>{{ item.title }}</h3>
+                                    {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+                                    <p class="blog-meta">{{ item.file_name }}</p>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        </div>
+                    </form>
+                {% elif not child_categories %}
+                    <p class="text-center">{{ site_settings.downloads_no_items_text }}</p>
+                {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    const form = document.getElementById("bulkDownloadForm");
+    if (!form) return;
+
+    const checkboxes = form.querySelectorAll(".download-item-checkbox");
+    const actionBtn = document.getElementById("bulkDownloadButton");
+    const folderCheckAll = document.getElementById("folderCheckAll");
+    const selectedCountBadge = document.getElementById("selectedCountBadge");
+    const clickableCards = form.querySelectorAll(".clickable-file-card");
+
+    const syncBulkUi = () => {
+        const totalCount = checkboxes.length;
+        const selectedCount = Array.from(checkboxes).filter((checkbox) => checkbox.checked).length;
+        actionBtn?.classList.toggle("d-none", selectedCount === 0);
+        if (folderCheckAll) {
+            folderCheckAll.checked = totalCount > 0 && selectedCount === totalCount;
+            folderCheckAll.indeterminate = selectedCount > 0 && selectedCount < totalCount;
+        }
+        if (selectedCountBadge) {
+            selectedCountBadge.textContent = `${selectedCount} selected`;
+            selectedCountBadge.classList.toggle("d-none", selectedCount === 0);
+        }
+    };
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", syncBulkUi);
+    });
+
+    folderCheckAll?.addEventListener("change", () => {
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = folderCheckAll.checked;
+        });
+        syncBulkUi();
+    });
+
+    clickableCards.forEach((card) => {
+        card.addEventListener("click", (event) => {
+            const target = event.target;
+            if (target.closest(".download-item-checkbox") || target.closest(".download-select-row")) {
+                return;
+            }
+            const openUrl = card.dataset.openUrl;
+            if (openUrl) {
+                window.location.href = openUrl;
+            }
+        });
+    });
+
+    form.addEventListener("submit", (event) => {
+        const selectedCount = Array.from(checkboxes).filter((checkbox) => checkbox.checked).length;
+        if (selectedCount === 0) {
+            event.preventDefault();
+        }
+    });
+
+    syncBulkUi();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ site_settings.blog_page_title }}{% endblock title %}
+
+{% block content %}
+<section class="blog-section">
+    <div class="container">
+        <h1 class="section-title">{{ site_settings.blog_page_title }}</h1>
+        <p class="section-description">{{ site_settings.blog_page_subtitle }}</p>
+
+        <form method="get" class="blog-filters-bar">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="{{ site_settings.blog_search_placeholder }}">
+            <button type="submit" class="btn btn-primary btn-sm">{{ site_settings.blog_search_button_text }}</button>
+        </form>
+
+        <div class="blog-taxonomy-row">
+            <div class="blog-taxonomy-group">
+                <span class="blog-taxonomy-label">{{ site_settings.blog_categories_title }}:</span>
+                <a href="{% url 'blog_list' %}?{% if search_query %}q={{ search_query|urlencode }}{% endif %}" class="{% if not active_category %}active{% endif %}">{{ site_settings.blog_filter_all_text }}</a>
+                {% for category in categories %}
+                <a href="{% url 'blog_list' %}?category={{ category.slug }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="{% if active_category == category.slug %}active{% endif %}">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+
+            <div class="blog-taxonomy-group">
+                <span class="blog-taxonomy-label">{{ site_settings.blog_tags_title }}:</span>
+                <a href="{% url 'blog_list' %}?{% if search_query %}q={{ search_query|urlencode }}{% endif %}{% if active_category %}&category={{ active_category }}{% endif %}" class="{% if not active_tag %}active{% endif %}">{{ site_settings.blog_filter_all_text }}</a>
+                {% for tag in tags %}
+                <a href="{% url 'blog_list' %}?tag={{ tag.slug }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if active_category %}&category={{ active_category }}{% endif %}" class="{% if active_tag == tag.slug %}active{% endif %}">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="blog-grid">
+            {% for post in posts %}
+            <article class="blog-card">
+                {% if post.cover_image %}
+                <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="blog-cover">
+                {% endif %}
+                <div class="blog-card-body">
+                    <h3>{{ post.title }}</h3>
+                    <p class="blog-meta">{{ post.author_name }} | {{ post.published_at|date:"M d, Y" }}</p>
+                    {% if post.category %}<p class="blog-meta">{{ site_settings.blog_category_label_text }}: {{ post.category.name }}</p>{% endif %}
+                    {% if post.tags.all %}
+                    <div class="resume-tags mb-2">
+                        {% for tag in post.tags.all %}
+                        <span>{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if post.excerpt %}
+                    <p>{{ post.excerpt }}</p>
+                    {% elif post.content %}
+                    <p>{{ post.content|truncatechars:190 }}</p>
+                    {% endif %}
+                    <a href="{% url 'blog_detail' post.slug %}" class="btn btn-outline-primary btn-sm">{{ site_settings.blog_read_more_text }}</a>
+                </div>
+            </article>
+            {% empty %}
+            <p class="text-center">{{ site_settings.blog_no_posts_text }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

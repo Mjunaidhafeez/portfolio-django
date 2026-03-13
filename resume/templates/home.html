@@ -1,28 +1,162 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Home - My Portfolio{% endblock title %}
+{% block title %}{{ site_settings.full_name }}{% endblock title %}
 
 {% block content %}
-<div class="row my-5">
+<div class="row my-5" id="top">
     <div class="circular-image-container">
-        <img src="{% static 'images/junaid.jpg' %}" alt="Junaid Hafeez" class="img-fluid rounded-circle">
+        {% if site_settings.profile_photo %}
+        <img src="{{ site_settings.profile_photo.url }}" alt="{{ site_settings.full_name }}" class="img-fluid rounded-circle">
+        {% elif site_settings.profile_image %}
+        <img src="{% static site_settings.profile_image %}" alt="{{ site_settings.full_name }}" class="img-fluid rounded-circle">
+        {% endif %}
     </div>
     <div class="col-12 text-center">
-        <h4 class="name">Junaid Hafeez</h4>
-        <p class="title">Software Engineer</p>
+        <h4 class="name">{{ site_settings.full_name }}</h4>
+        <p class="title">{{ site_settings.professional_title }}</p>
     </div>
     <div class="welcome-section">
-        <h1 class="welcome-text">Welcome to my professional portfolio</h1>
-        <p class="description-text">
-            I specialize in creating robust and scalable web applications using modern technologies.
-            With expertise in both front-end and back-end development, I bring ideas to life through
-            clean, efficient, and maintainable code.
-        </p>
-        <div class="cta-buttons">
-            <a href="/about" class="btn btn-primary">Learn More About Me</a>
-            <a href="/projects" class="btn btn-outline-primary">View My Projects</a>
-        </div>
+        <h1 class="welcome-text">{{ site_settings.home_welcome_title }}</h1>
+        <p class="description-text">{{ site_settings.hero_intro }}</p>
     </div>
 </div>
+
+{% if site_settings.about_text %}
+<section class="about-section" id="about">
+    <div class="container">
+        <div class="about-content">
+            <h1 class="about-title">{{ site_settings.home_about_title }}</h1>
+            <h2 class="about-subtitle">{{ site_settings.professional_title }}</h2>
+            <p class="about-text">{{ site_settings.about_text }}</p>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% for section in sections %}
+<section
+    class="projects-section{% if section.background_image %} section-with-custom-bg{% endif %}"
+    id="{{ section.slug }}"
+    {% if section.background_image %}style="--section-bg-image: url('{{ section.background_image.url }}');"{% endif %}
+>
+    <div class="container">
+    <h1 class="section-title">{{ section.headline|default:section.title }}</h1>
+    {% if section.description %}
+    <p class="section-description">{{ section.description }}</p>
+    {% endif %}
+    <div class="projects-grid">
+        {% for entry in section.entries.all %}
+        <div class="project-card">
+            <div class="project-icon-container">
+                <i class="{{ section.icon_class|default:'fas fa-star' }}"></i>
+            </div>
+            <div class="project-content">
+                <h3>{{ entry.title }}</h3>
+                {% if entry.subtitle or entry.date_range %}
+                <p><strong>
+                    {% if entry.subtitle %}{{ entry.subtitle }}{% endif %}
+                    {% if entry.subtitle and entry.date_range %} | {% endif %}
+                    {% if entry.date_range %}{{ entry.date_range }}{% endif %}
+                </strong></p>
+                {% endif %}
+                {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}
+                {% if entry.bullets_list %}
+                <ul class="entry-bullets">
+                    {% for bullet in entry.bullets_list %}
+                    <li>{{ bullet }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if entry.tags_list %}
+                <div class="project-tech">
+                    {% for tag in entry.tags_list %}
+                    <span>{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if entry.link %}
+                <a class="btn btn-sm btn-outline-primary mt-2" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">{{ site_settings.home_open_link_text }}</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">{{ site_settings.home_no_entries_text }}</p>
+        {% endfor %}
+    </div>
+    </div>
+</section>
+{% endfor %}
+
+<section class="contact-section" id="contact">
+    <div class="container">
+        <h1 class="section-title">{{ site_settings.contact_section_title }}</h1>
+        <p class="section-description">{{ site_settings.contact_section_subtitle }}</p>
+        <div class="contact-container">
+            <div class="contact-info-card">
+                <div class="contact-header"><i class="fas fa-address-card"></i><h2>{{ site_settings.contact_info_title }}</h2></div>
+                <div class="contact-details">
+                    {% if site_settings.email %}<div class="contact-item"><i class="fas fa-envelope"></i><div class="contact-text"><h3>{{ site_settings.contact_email_label }}</h3><p>{{ site_settings.email }}</p></div></div>{% endif %}
+                    {% if site_settings.phone %}<div class="contact-item"><i class="fas fa-phone"></i><div class="contact-text"><h3>{{ site_settings.contact_phone_label }}</h3><p>{{ site_settings.phone }}</p></div></div>{% endif %}
+                    {% if site_settings.address %}<div class="contact-item"><i class="fas fa-map-marker-alt"></i><div class="contact-text"><h3>{{ site_settings.contact_address_label }}</h3><p>{{ site_settings.address }}</p></div></div>{% endif %}
+                    {% if site_settings.linkedin_url %}<div class="contact-item"><i class="fab fa-linkedin"></i><div class="contact-text"><h3>{{ site_settings.contact_linkedin_label }}</h3><p>{{ site_settings.linkedin_url }}</p></div></div>{% endif %}
+                    {% if site_settings.website_url %}<div class="contact-item"><i class="fas fa-globe"></i><div class="contact-text"><h3>{{ site_settings.contact_website_label }}</h3><p>{{ site_settings.website_url }}</p></div></div>{% endif %}
+                </div>
+            </div>
+            <div class="contact-form-card">
+                <div class="contact-header"><i class="fas fa-paper-plane"></i><h2>{{ site_settings.contact_form_title }}</h2></div>
+                <form id="contactForm" class="contact-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">{{ site_settings.contact_name_label }}</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">{{ site_settings.contact_email_label }}</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">{{ site_settings.contact_subject_label }}</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">{{ site_settings.contact_message_label }}</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> {{ site_settings.contact_send_button_text }}</button>
+            </form>
+            <div id="formMessage" class="form-message"></div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contactForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const messageBox = document.getElementById('formMessage');
+
+    fetch("{% url 'contact' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        messageBox.textContent = data.message;
+        messageBox.className = 'form-message ' + (data.status === 'success' ? 'success' : 'error');
+        if (data.status === 'success') form.reset();
+    })
+    .catch(() => {
+        messageBox.textContent = "{{ site_settings.contact_failure_message|escapejs }}";
+        messageBox.className = 'form-message error';
+    });
+});
+</script>
+{% endblock %}

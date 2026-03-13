@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }}{% endblock title %}
+
+{% block content %}
+<section class="blog-detail-section">
+    <div class="container">
+        <a class="btn btn-outline-light btn-sm mb-3" href="{% url 'blog_list' %}">{{ site_settings.blog_back_to_blogs_text }}</a>
+        <article class="blog-detail-card">
+            {% if post.cover_image %}
+            <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="blog-detail-cover">
+            {% endif %}
+
+            <h1>{{ post.title }}</h1>
+            <p class="blog-meta">{{ post.author_name }} | {{ post.published_at|date:"M d, Y" }}</p>
+            {% if post.category %}<p class="blog-meta">{{ site_settings.blog_category_label_text }}: {{ post.category.name }}</p>{% endif %}
+            {% if post.tags.all %}
+            <div class="resume-tags mb-3">
+                {% for tag in post.tags.all %}
+                <span>{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if post.content %}
+            <div class="blog-text">{{ post.content|linebreaks }}</div>
+            {% endif %}
+
+            {% for block in post.blocks.all %}
+                {% if block.block_type == "text" %}
+                <section class="blog-block">
+                    {% if block.heading %}<h3>{{ block.heading }}</h3>{% endif %}
+                    {% if block.text_content %}<div class="blog-text">{{ block.text_content|linebreaks }}</div>{% endif %}
+                    {% if block.caption %}<p class="blog-caption">{{ block.caption }}</p>{% endif %}
+                </section>
+                {% elif block.block_type == "image" and block.image %}
+                <section class="blog-block">
+                    {% if block.heading %}<h3>{{ block.heading }}</h3>{% endif %}
+                    <img src="{{ block.image.url }}" alt="{{ block.heading|default:post.title }}" class="blog-block-image">
+                    {% if block.caption %}<p class="blog-caption">{{ block.caption }}</p>{% endif %}
+                </section>
+                {% elif block.block_type == "video" %}
+                <section class="blog-block">
+                    {% if block.heading %}<h3>{{ block.heading }}</h3>{% endif %}
+                    {% if block.video_file %}
+                    <video class="blog-video" controls>
+                        <source src="{{ block.video_file.url }}">
+                    </video>
+                    {% elif block.video_url %}
+                    <div class="blog-video-frame">
+                        <iframe src="{{ block.video_url }}" title="{{ block.heading|default:post.title }}" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                    {% if block.caption %}<p class="blog-caption">{{ block.caption }}</p>{% endif %}
+                </section>
+                {% endif %}
+            {% endfor %}
+
+            <section class="blog-block" id="comments">
+                <h3>{{ site_settings.blog_comments_title }}</h3>
+                {% if comment_submitted %}
+                <p class="blog-caption">{{ site_settings.blog_comment_pending_text }}</p>
+                {% endif %}
+
+                {% for comment in comments %}
+                <article class="blog-comment">
+                    <p class="blog-comment-meta">{{ comment.name }} | {{ comment.created_at|date:"M d, Y" }}</p>
+                    <p class="blog-text">{{ comment.message }}</p>
+                </article>
+                {% empty %}
+                <p class="blog-caption">{{ site_settings.blog_no_comments_text }}</p>
+                {% endfor %}
+
+                <form method="post" action="{% url 'blog_comment_create' post.slug %}" class="blog-comment-form">
+                    {% csrf_token %}
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ site_settings.blog_comment_name_label }}</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ site_settings.blog_comment_email_label }}</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ site_settings.blog_comment_message_label }}</label>
+                            <textarea class="form-control" name="message" rows="4" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary btn-sm" type="submit">{{ site_settings.blog_comment_submit_text }}</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </article>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% load static %}
+<section class="professional-resume">
+    <div class="resume-topbar">
+        <div class="resume-actions-row">
+            {% if is_preview %}
+                <button type="button" class="download-btn resume-print-btn" onclick="window.print()">
+                    <i class="fas fa-print"></i> {{ site_settings.resume_print_button_text }}
+                </button>
+            {% else %}
+                <a href="{% url 'resume_preview' %}?action=print" target="_blank" rel="noopener noreferrer" class="download-btn resume-print-btn">
+                    <i class="fas fa-print"></i> {{ site_settings.resume_print_button_text }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="resume-sheet">
+        <aside class="resume-sidebar">
+            <div class="resume-profile-card">
+                {% if site_settings.profile_photo %}
+                <img src="{{ site_settings.profile_photo.url }}" alt="{{ site_settings.full_name }}" class="resume-avatar">
+                {% elif site_settings.profile_image %}
+                <img src="{% static site_settings.profile_image %}" alt="{{ site_settings.full_name }}" class="resume-avatar">
+                {% endif %}
+                <h2>{{ site_settings.full_name }}</h2>
+                <p class="resume-role">{{ site_settings.professional_title }}</p>
+            </div>
+
+            <div class="resume-contact-list">
+                {% if site_settings.email %}<p><i class="fas fa-envelope"></i> {{ site_settings.email }}</p>{% endif %}
+                {% if site_settings.phone %}<p><i class="fas fa-phone"></i> {{ site_settings.phone }}</p>{% endif %}
+                {% if site_settings.address %}<p><i class="fas fa-map-marker-alt"></i> {{ site_settings.address }}</p>{% endif %}
+                {% if site_settings.linkedin_url %}<p><i class="fab fa-linkedin"></i> {{ site_settings.linkedin_url }}</p>{% endif %}
+                {% if site_settings.github_url %}<p><i class="fab fa-github"></i> {{ site_settings.github_url }}</p>{% endif %}
+            </div>
+        </aside>
+
+        <main class="resume-main">
+            {% if site_settings.about_text %}
+            <section class="resume-main-section">
+                <h3>{{ site_settings.resume_profile_title }}</h3>
+                <p class="resume-section-description">{{ site_settings.about_text }}</p>
+            </section>
+            {% endif %}
+
+            {% for section in resume_sections %}
+            <section class="resume-main-section">
+                <h3>{{ section.title }}</h3>
+                {% if section.description %}
+                <p class="resume-section-description">{{ section.description }}</p>
+                {% endif %}
+
+                {% for entry in section.entries.all %}
+                <article class="resume-item">
+                    <div class="resume-item-head">
+                        <h4>{{ entry.title }}</h4>
+                        {% if entry.date_range %}<span>{{ entry.date_range }}</span>{% endif %}
+                    </div>
+                    {% if entry.subtitle or entry.location %}
+                    <p class="resume-item-meta">
+                        {% if entry.subtitle %}{{ entry.subtitle }}{% endif %}
+                        {% if entry.subtitle and entry.location %} | {% endif %}
+                        {% if entry.location %}{{ entry.location }}{% endif %}
+                    </p>
+                    {% endif %}
+                    {% if entry.description %}<p>{{ entry.description }}</p>{% endif %}
+
+                    {% if entry.bullets_list %}
+                    <ul class="resume-item-list">
+                        {% for bullet in entry.bullets_list %}
+                        <li>{{ bullet }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    {% if entry.tags_list %}
+                    <div class="resume-tags">
+                        {% for tag in entry.tags_list %}
+                        <span>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </section>
+            {% empty %}
+            <p class="text-muted">{{ site_settings.resume_no_sections_text }}</p>
+            {% endfor %}
+        </main>
+    </div>
+</section>

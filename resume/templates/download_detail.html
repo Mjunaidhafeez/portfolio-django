@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ item.title }}{% endblock title %}
+
+{% block content %}
+<section class="downloads-section">
+    <div class="container">
+        <a class="btn btn-outline-light btn-sm mb-3" href="{% url 'download_list' %}">{{ site_settings.downloads_back_text }}</a>
+
+        <article class="download-detail-card">
+            <div class="download-detail-head">
+                <h1>{{ item.title }}</h1>
+                <a
+                    href="{% if item.preview_type == 'office' and office_preview_url %}{{ office_preview_url }}{% else %}{{ item.file.url }}{% endif %}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-outline-light btn-sm"
+                >
+                    {{ site_settings.downloads_open_text }} (Full Preview)
+                </a>
+            </div>
+            {% if item.description %}<p class="blog-text">{{ item.description }}</p>{% endif %}
+            <p class="blog-meta">{{ item.file_name }}</p>
+
+            <div class="download-preview">
+                {% if item.preview_type == "pdf" %}
+                    <object data="{{ item.file.url }}#toolbar=1" type="application/pdf" class="download-preview-frame">
+                        <p class="blog-caption">
+                            {{ site_settings.downloads_preview_unavailable_text }}
+                            <a href="{{ item.file.url }}" target="_blank" rel="noopener noreferrer">{{ site_settings.downloads_open_text }}</a>
+                        </p>
+                    </object>
+                {% elif item.preview_type == "image" %}
+                    <img src="{{ item.file.url }}" alt="{{ item.title }}" class="download-preview-image">
+                {% elif item.preview_type == "video" %}
+                    <video class="download-preview-video" controls>
+                        <source src="{{ item.file.url }}">
+                    </video>
+                {% elif item.preview_type == "text" and preview_text %}
+                    <pre class="download-preview-text">{{ preview_text }}</pre>
+                {% elif item.preview_type == "csv" and preview_rows %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-sm">
+                            <tbody>
+                                {% for row in preview_rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif item.preview_type == "office" and office_preview_url %}
+                    <p class="blog-caption">{{ site_settings.downloads_office_preview_note }}</p>
+                    <iframe src="{{ office_preview_url }}" class="download-preview-frame" title="{{ item.title }}"></iframe>
+                {% else %}
+                    <p class="blog-caption">{{ site_settings.downloads_preview_unavailable_text }}</p>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}
