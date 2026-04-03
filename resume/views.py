@@ -6,8 +6,7 @@ from urllib.parse import quote_plus
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models import Q
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone

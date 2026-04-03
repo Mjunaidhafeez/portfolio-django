@@ -25,7 +25,9 @@ wheels/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
+media/
+*.zip
+resume_data.json
 
 # Virtual Environment
 venv/
