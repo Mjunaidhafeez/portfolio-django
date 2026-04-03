@@ -1,6 +1,45 @@
+import re
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+
+_HEX_COLOR_RE = re.compile(r"^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+
+
+def validate_optional_hex_color(value: str) -> None:
+    if not value:
+        return
+    if not _HEX_COLOR_RE.match(value.strip()):
+        raise ValidationError("Enter a valid hex color such as #e8eef7 or #abc.")
+
+
+def strip_optional_hex_fields(obj, field_names: tuple[str, ...]) -> None:
+    for name in field_names:
+        val = getattr(obj, name, None)
+        if isinstance(val, str):
+            setattr(obj, name, val.strip())
+
+
+_SITE_SETTINGS_HEX_COLOR_FIELDS = (
+    "home_name_color",
+    "home_title_color",
+    "home_welcome_title_color",
+    "home_hero_intro_color",
+    "about_title_color",
+    "about_subtitle_color",
+    "about_body_color",
+    "contact_section_title_color",
+    "contact_section_subtitle_color",
+    "contact_body_color",
+)
+
+_PORTFOLIO_SECTION_HEX_COLOR_FIELDS = (
+    "title_color",
+    "description_color",
+    "body_text_color",
+)
 
 
 class SiteSettings(models.Model):
@@ -54,6 +93,66 @@ class SiteSettings(models.Model):
         choices=COLOR_THEME_CHOICES,
         default=THEME_OCEAN,
         help_text="Select a complete color theme for the website.",
+    )
+    home_name_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Hero: your name (hex, e.g. #e8eef7). Blank = theme default.",
+    )
+    home_title_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Hero: professional title line.",
+    )
+    home_welcome_title_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Hero: welcome heading.",
+    )
+    home_hero_intro_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Hero: intro paragraph under welcome.",
+    )
+    about_title_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="About section: main heading.",
+    )
+    about_subtitle_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="About section: subtitle.",
+    )
+    about_body_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="About section: body paragraph.",
+    )
+    contact_section_title_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Contact: main section title.",
+    )
+    contact_section_subtitle_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Contact: subtitle under title.",
+    )
+    contact_body_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Contact: card text, labels, and form labels.",
     )
     footer_text = models.CharField(max_length=255, blank=True, default="All rights reserved.")
     resume_filename = models.CharField(max_length=120, default="resume")
@@ -162,6 +261,7 @@ class SiteSettings(models.Model):
         verbose_name_plural = "Site Settings"
 
     def save(self, *args, **kwargs):
+        strip_optional_hex_fields(self, _SITE_SETTINGS_HEX_COLOR_FIELDS)
         self.pk = 1
         super().save(*args, **kwargs)
 
@@ -189,6 +289,24 @@ class PortfolioSection(models.Model):
         null=True,
         help_text="Optional background image for this section only.",
     )
+    title_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Section headline (hex). Blank = theme default.",
+    )
+    description_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Section description line.",
+    )
+    body_text_color = models.CharField(
+        max_length=7,
+        blank=True,
+        validators=[validate_optional_hex_color],
+        help_text="Project cards: titles, body, bullets (not tag pills).",
+    )
     order = models.PositiveIntegerField(default=0)
     is_visible = models.BooleanField(default=True)
     show_on_resume = models.BooleanField(
@@ -201,6 +319,7 @@ class PortfolioSection(models.Model):
         ordering = ["order", "id"]
 
     def save(self, *args, **kwargs):
+        strip_optional_hex_fields(self, _PORTFOLIO_SECTION_HEX_COLOR_FIELDS)
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)

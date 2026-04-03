@@ -138,7 +138,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# In DEBUG, serve app static from source (fresh CSS/JS) and avoid manifest hashes.
+# In production, use hashed filenames for cache busting after collectstatic.
+if DEBUG:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# When True, WhiteNoise uses Django finders (e.g. resume/static/) instead of only STATIC_ROOT.
+# Without this in development, an old collectstatic copy in staticfiles/ can hide template/CSS changes.
+WHITENOISE_USE_FINDERS = DEBUG
 
 # Media files
 MEDIA_URL = '/media/'

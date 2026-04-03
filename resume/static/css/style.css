@@ -83,7 +83,7 @@ body{
 }
 
 .about-text {
-    color: #f10b0b;
+    color: var(--theme-muted) !important;
     font-size: 1.1rem;
     line-height: 1.8;
     margin-bottom: 30px;
@@ -1867,4 +1867,53 @@ body::after {
     z-index: 1;
 }
 
+/* Admin: optional per-section text colors (override theme !important rules) */
+#top.hero-cname .name {
+    color: var(--home-name-color) !important;
+}
+#top.hero-ctitle .title {
+    color: var(--home-title-color) !important;
+}
+.welcome-section.welcome-cwelcome .welcome-text {
+    color: var(--home-welcome-color) !important;
+}
+.welcome-section.welcome-cintro .description-text {
+    color: var(--home-intro-color) !important;
+}
+.about-section.about-ctitle .about-title {
+    color: var(--about-title-color) !important;
+}
+.about-section.about-csubtitle .about-subtitle {
+    color: var(--about-subtitle-color) !important;
+}
+.about-section.about-cbody .about-text {
+    color: var(--about-body-color) !important;
+}
+.contact-section.contact-ctitle .container h1.section-title {
+    color: var(--contact-title-color) !important;
+}
+.contact-section.contact-csubtitle .container p.section-description {
+    color: var(--contact-sub-color) !important;
+}
+.contact-section.contact-cbody .contact-header h2,
+.contact-section.contact-cbody .contact-text h3,
+.contact-section.contact-cbody .contact-text p,
+.contact-section.contact-cbody .form-group label {
+    color: var(--contact-body-color) !important;
+}
+.projects-section.ps-ctitle .container h1.section-title {
+    color: var(--ps-title-color) !important;
+}
+.projects-section.ps-cdesc .container p.section-description {
+    color: var(--ps-desc-color) !important;
+}
+.projects-section.ps-cbody .project-content h3,
+.projects-section.ps-cbody .project-content p,
+.projects-section.ps-cbody .project-content li,
+.projects-section.ps-cbody .project-content strong {
+    color: var(--ps-body-color) !important;
+}
+.projects-section.ps-cbody .container p.text-center {
+    color: var(--ps-body-color) !important;
+}
 

@@ -44,6 +44,13 @@ class PortfolioSectionAdmin(admin.ModelAdmin):
     actions = ("enable_resume_sections", "disable_resume_sections")
     fieldsets = (
         ("Section Identity", {"fields": ("title", "slug", "nav_title", "headline", "icon_class", "background_image")}),
+        (
+            "Section text colors (optional)",
+            {
+                "fields": ("title_color", "description_color", "body_text_color"),
+                "description": "Hex colors (e.g. #e8eef7). Leave blank to use the site color theme.",
+            },
+        ),
         ("Display Settings", {"fields": ("description", "order", "is_visible", "show_on_resume")}),
     )
     inlines = [SectionEntryInline]
@@ -192,6 +199,24 @@ class SiteSettingsAdmin(admin.ModelAdmin):
                     "footer_text",
                     "resume_filename",
                 )
+            },
+        ),
+        (
+            "Home page text colors (optional)",
+            {
+                "fields": (
+                    "home_name_color",
+                    "home_title_color",
+                    "home_welcome_title_color",
+                    "home_hero_intro_color",
+                    "about_title_color",
+                    "about_subtitle_color",
+                    "about_body_color",
+                    "contact_section_title_color",
+                    "contact_section_subtitle_color",
+                    "contact_body_color",
+                ),
+                "description": "Hex colors (e.g. #e8eef7). Leave blank to use the site color theme.",
             },
         ),
         (

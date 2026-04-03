@@ -4,7 +4,7 @@
 {% block title %}{{ site_settings.full_name }}{% endblock title %}
 
 {% block content %}
-<div class="row my-5" id="top">
+<div class="row my-5{% if site_settings.home_name_color %} hero-cname{% endif %}{% if site_settings.home_title_color %} hero-ctitle{% endif %}" id="top"{% if site_settings.home_name_color or site_settings.home_title_color %} style="{% if site_settings.home_name_color %}--home-name-color: {{ site_settings.home_name_color }};{% endif %}{% if site_settings.home_title_color %}--home-title-color: {{ site_settings.home_title_color }};{% endif %}"{% endif %}>
     <div class="circular-image-container">
         {% if site_settings.profile_photo %}
         <img src="{{ site_settings.profile_photo.url }}" alt="{{ site_settings.full_name }}" class="img-fluid rounded-circle">
@@ -16,14 +16,14 @@
         <h4 class="name">{{ site_settings.full_name }}</h4>
         <p class="title">{{ site_settings.professional_title }}</p>
     </div>
-    <div class="welcome-section">
+    <div class="welcome-section{% if site_settings.home_welcome_title_color %} welcome-cwelcome{% endif %}{% if site_settings.home_hero_intro_color %} welcome-cintro{% endif %}"{% if site_settings.home_welcome_title_color or site_settings.home_hero_intro_color %} style="{% if site_settings.home_welcome_title_color %}--home-welcome-color: {{ site_settings.home_welcome_title_color }};{% endif %}{% if site_settings.home_hero_intro_color %}--home-intro-color: {{ site_settings.home_hero_intro_color }};{% endif %}"{% endif %}>
         <h1 class="welcome-text">{{ site_settings.home_welcome_title }}</h1>
         <p class="description-text">{{ site_settings.hero_intro }}</p>
     </div>
 </div>
 
 {% if site_settings.about_text %}
-<section class="about-section" id="about">
+<section class="about-section{% if site_settings.about_title_color %} about-ctitle{% endif %}{% if site_settings.about_subtitle_color %} about-csubtitle{% endif %}{% if site_settings.about_body_color %} about-cbody{% endif %}" id="about"{% if site_settings.about_title_color or site_settings.about_subtitle_color or site_settings.about_body_color %} style="{% if site_settings.about_title_color %}--about-title-color: {{ site_settings.about_title_color }};{% endif %}{% if site_settings.about_subtitle_color %}--about-subtitle-color: {{ site_settings.about_subtitle_color }};{% endif %}{% if site_settings.about_body_color %}--about-body-color: {{ site_settings.about_body_color }};{% endif %}"{% endif %}>
     <div class="container">
         <div class="about-content">
             <h1 class="about-title">{{ site_settings.home_about_title }}</h1>
@@ -36,9 +36,9 @@
 
 {% for section in sections %}
 <section
-    class="projects-section{% if section.background_image %} section-with-custom-bg{% endif %}"
+    class="projects-section{% if section.background_image %} section-with-custom-bg{% endif %}{% if section.title_color %} ps-ctitle{% endif %}{% if section.description_color %} ps-cdesc{% endif %}{% if section.body_text_color %} ps-cbody{% endif %}"
     id="{{ section.slug }}"
-    {% if section.background_image %}style="--section-bg-image: url('{{ section.background_image.url }}');"{% endif %}
+    style="{% if section.background_image %}--section-bg-image: url('{{ section.background_image.url }}');{% endif %}{% if section.title_color %}--ps-title-color: {{ section.title_color }};{% endif %}{% if section.description_color %}--ps-desc-color: {{ section.description_color }};{% endif %}{% if section.body_text_color %}--ps-body-color: {{ section.body_text_color }};{% endif %}"
 >
     <div class="container">
     <h1 class="section-title">{{ section.headline|default:section.title }}</h1>
@@ -88,7 +88,7 @@
 </section>
 {% endfor %}
 
-<section class="contact-section" id="contact">
+<section class="contact-section{% if site_settings.contact_section_title_color %} contact-ctitle{% endif %}{% if site_settings.contact_section_subtitle_color %} contact-csubtitle{% endif %}{% if site_settings.contact_body_color %} contact-cbody{% endif %}" id="contact"{% if site_settings.contact_section_title_color or site_settings.contact_section_subtitle_color or site_settings.contact_body_color %} style="{% if site_settings.contact_section_title_color %}--contact-title-color: {{ site_settings.contact_section_title_color }};{% endif %}{% if site_settings.contact_section_subtitle_color %}--contact-sub-color: {{ site_settings.contact_section_subtitle_color }};{% endif %}{% if site_settings.contact_body_color %}--contact-body-color: {{ site_settings.contact_body_color }};{% endif %}"{% endif %}>
     <div class="container">
         <h1 class="section-title">{{ site_settings.contact_section_title }}</h1>
         <p class="section-description">{{ site_settings.contact_section_subtitle }}</p>
